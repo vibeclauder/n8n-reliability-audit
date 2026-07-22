@@ -42,6 +42,19 @@ Produce machine-readable JSON:
 node ./bin/cli.mjs workflow.json --json
 ```
 
+Gate a build on workflow health with `--fail-on <severity>` (`low`, `medium`,
+`high`, or `critical`). The command exits `1` when any finding is at or above
+the threshold, so it can fail a CI pipeline:
+
+```bash
+node ./bin/cli.mjs workflow.json --fail-on high
+```
+
+Without `--fail-on` the tool exits `1` only on a `critical` finding, preserving
+the original behavior. See [`ci/`](ci/) for a ready-to-use GitHub Actions
+workflow that re-audits your exports on every change and on a schedule — the
+mechanism behind an ongoing reliability-monitoring engagement.
+
 Run the test suite and regenerate the example report:
 
 ```bash
@@ -61,6 +74,7 @@ The CLI is free. If you want a checked, prioritized review instead of a raw stat
 
 - **$49 async reliability review:** one sanitized workflow export plus up to three sanitized failed executions; returned as a prioritized written review within one business day.
 - **$250 bounded remediation:** repair and test one agreed reliability slice, with an updated sanitized export and handoff notes. Scope is confirmed before work starts.
+- **Ongoing monitoring:** wire the [`ci/`](ci/) gate into your repository so every workflow change is re-audited automatically and regressions fail the build before they ship. Suited to teams running business-critical automations who want reliability to stay fixed, not decay after a one-time review.
 
 See [`examples/remediation-case-study.md`](examples/remediation-case-study.md) for a worked before/after: a small AI-assisted inbound-lead workflow taken from 0/100 (15 findings) to 100/100 (0 findings), with each finding paired to the exact edit that resolved it — and an honest note on what the remediation deliberately left for the next slice. Every number in it is reproducible from the fixtures in this repo.
 

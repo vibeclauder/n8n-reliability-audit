@@ -2,7 +2,7 @@
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename } from 'node:path';
-import { auditExport, renderMarkdown } from '../lib/audit.mjs';
+import { auditExport, renderMarkdown, evaluateGate, GATE_THRESHOLDS } from '../lib/audit.mjs';
 
 function usage() {
   return `Usage: n8n-reliability-audit <workflow.json> [options]
@@ -10,6 +10,9 @@ function usage() {
 Options:
   --json              Print the machine-readable report
   --output <path>     Write the report to a file instead of stdout
+  --fail-on <sev>     Exit non-zero if any finding is at or above <sev>.
+                      One of: ${GATE_THRESHOLDS.join(', ')}. Default: critical.
+                      Use this to gate a CI pipeline on workflow health.
   --help              Show this help
 
 The workflow stays on this machine. Reports contain finding metadata and a
@@ -18,7 +21,7 @@ SHA-256 fingerprint, but never reproduce parameter values or credentials.`;
 
 function parseArgs(argv) {
   const args = [...argv];
-  const options = { json: false, output: null, input: null };
+  const options = { json: false, output: null, input: null, failOn: null };
 
   while (args.length > 0) {
     const arg = args.shift();
@@ -30,6 +33,16 @@ function parseArgs(argv) {
     if (arg === '--output') {
       options.output = args.shift();
       if (!options.output) throw new Error('--output requires a path');
+      continue;
+    }
+    if (arg === '--fail-on') {
+      options.failOn = args.shift();
+      if (!options.failOn) throw new Error('--fail-on requires a severity');
+      if (!GATE_THRESHOLDS.includes(options.failOn)) {
+        throw new Error(
+          `--fail-on must be one of: ${GATE_THRESHOLDS.join(', ')} (got "${options.failOn}")`
+        );
+      }
       continue;
     }
     if (arg.startsWith('-')) throw new Error(`Unknown option: ${arg}`);
@@ -87,7 +100,14 @@ async function main() {
     process.stdout.write(output);
   }
 
-  if (report.summary.critical > 0) process.exitCode = 1;
+  const gate = evaluateGate(report, { failOn: options.failOn });
+  if (gate.failed) {
+    console.error(
+      `Gate failed: ${gate.gatedCount} finding(s) at or above "${gate.threshold}" ` +
+      `(score ${report.score}/100).`
+    );
+    process.exitCode = 1;
+  }
 }
 
 await main();

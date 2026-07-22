@@ -1,0 +1,76 @@
+# Continuous n8n workflow reliability gate.
+#
+# Drop this file into a repository at `.github/workflows/n8n-reliability.yml`,
+# commit your exported workflow JSON under `workflows/`, and every push, pull
+# request, and weekly schedule will re-audit them. The build fails when a
+# workflow carries a finding at or above the `--fail-on` threshold, so a
+# reliability regression is caught before it reaches production instead of at
+# 3 a.m. when the automation silently stops.
+#
+# Privacy: the audit runs entirely inside your own CI runner. The workflow
+# JSON never leaves your infrastructure; the JSON report contains finding
+# metadata and a SHA-256 fingerprint of the export, never parameter values or
+# credential contents.
+
+name: n8n workflow reliability gate
+
+on:
+  push:
+    paths: ['workflows/**.json']
+  pull_request:
+    paths: ['workflows/**.json']
+  schedule:
+    # Weekly drift check — Mondays 13:17 UTC. Catches workflows that were edited
+    # in the n8n UI and re-exported without re-review.
+    - cron: '17 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      # Gate threshold: low | medium | high | critical. `high` fails the build
+      # on any high or critical finding. Loosen to `critical` while adopting,
+      # then tighten as workflows are hardened.
+      FAIL_ON: high
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Audit exported n8n workflows
+        run: |
+          set -uo pipefail
+          shopt -s nullglob
+          mkdir -p audit-reports
+          files=(workflows/*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No workflow exports found under workflows/*.json — nothing to audit."
+            exit 0
+          fi
+          fail=0
+          for wf in "${files[@]}"; do
+            name="$(basename "$wf" .json)"
+            echo "::group::Auditing $wf"
+            # One run both writes the machine-readable report and sets the gate
+            # exit code (the report is written before the gate is evaluated, so
+            # it is captured even on a failing workflow).
+            npx --yes github:vibeclauder/n8n-reliability-audit "$wf" \
+              --json --output "audit-reports/$name.json" \
+              --fail-on "$FAIL_ON" || fail=1
+            echo "::endgroup::"
+          done
+          exit $fail
+
+      - name: Upload reliability reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n8n-reliability-reports
+          path: audit-reports/
+          if-no-files-found: ignore
