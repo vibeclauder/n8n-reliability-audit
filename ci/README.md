@@ -50,7 +50,7 @@ fingerprinted record of workflow health over time.
 Before pushing, developers can reproduce the exact gate the CI uses:
 
 ```sh
-npx github:vibeclauder/n8n-reliability-audit workflows/inbound-lead.json --fail-on high
+npx --yes github:vibeclauder/n8n-reliability-audit#e709d817baf4d6a096a8955d06ebd2c9b31ece21 workflows/inbound-lead.json --fail-on high
 echo "exit: $?"   # 0 = clean at/above 'high', 1 = gated finding present
 ```
 
@@ -60,11 +60,11 @@ The gate is just the CLI's exit code, so any runner works. Minimal GitLab CI:
 
 ```yaml
 n8n-reliability:
-  image: node:20
+  image: node:22
   script:
     - |
       for wf in workflows/*.json; do
-        npx --yes github:vibeclauder/n8n-reliability-audit "$wf" --fail-on high
+        npx --yes github:vibeclauder/n8n-reliability-audit#e709d817baf4d6a096a8955d06ebd2c9b31ece21 "$wf" --fail-on high
       done
 ```
 

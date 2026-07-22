@@ -22,7 +22,7 @@ This is intentionally a static-analysis tool, not an “AI says it looks fine”
 
 ## Run it
 
-Node.js 20 or newer is the only requirement. There are no runtime dependencies.
+Node.js 22 or newer is the only requirement. There are no runtime dependencies.
 
 ```bash
 git clone https://github.com/vibeclauder/n8n-reliability-audit.git
