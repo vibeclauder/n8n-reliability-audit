@@ -1,0 +1,56 @@
+{
+  "name": "Durable inbound lead processing",
+  "active": true,
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Acknowledge lead webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": {
+        "path": "lead",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Classify sanitized lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "parameters": {
+        "url": "https://example.invalid/classify"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credential-reference-only",
+          "name": "Classification API"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Persist classified lead idempotently",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [400, 0],
+      "retryOnFail": true,
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Acknowledge lead webhook": {
+      "main": [[{"node": "Classify sanitized lead", "type": "main", "index": 0}]]
+    },
+    "Classify sanitized lead": {
+      "main": [[{"node": "Persist classified lead idempotently", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "errorWorkflow": "central-error-handler"
+  }
+}

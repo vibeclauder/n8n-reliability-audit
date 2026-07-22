@@ -1,0 +1,54 @@
+{
+  "name": "Inbound lead processing",
+  "active": true,
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": {
+        "path": "lead",
+        "responseMode": "lastNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0],
+      "continueOnFail": true,
+      "parameters": {
+        "url": "https://example.invalid/classify",
+        "api_key": "sk-example-value-that-should-be-rotated"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [400, 0],
+      "parameters": {}
+    },
+    {
+      "id": "4",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [0, 300],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]
+    },
+    "HTTP Request": {
+      "main": [[{"node": "Google Sheets", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {}
+}

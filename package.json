@@ -1,0 +1,24 @@
+{
+  "name": "n8n-reliability-audit",
+  "version": "0.1.0",
+  "description": "Local, privacy-preserving reliability checks for exported n8n workflows",
+  "type": "module",
+  "bin": {
+    "n8n-reliability-audit": "./bin/cli.mjs"
+  },
+  "scripts": {
+    "audit:sample": "node ./bin/cli.mjs ./test/fixtures/risky-workflow.json --output ./examples/risky-workflow-report.md",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "keywords": [
+    "n8n",
+    "workflow",
+    "reliability",
+    "automation",
+    "audit"
+  ]
+}
