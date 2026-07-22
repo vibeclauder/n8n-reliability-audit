@@ -62,6 +62,8 @@ The CLI is free. If you want a checked, prioritized review instead of a raw stat
 - **$49 async reliability review:** one sanitized workflow export plus up to three sanitized failed executions; returned as a prioritized written review within one business day.
 - **$250 bounded remediation:** repair and test one agreed reliability slice, with an updated sanitized export and handoff notes. Scope is confirmed before work starts.
 
+See [`examples/remediation-case-study.md`](examples/remediation-case-study.md) for a worked before/after: a small inbound-lead workflow taken from 5/100 (11 findings) to 100/100 (0 findings), with each finding paired to the exact edit that resolved it — and an honest note on what the remediation deliberately left for the next slice. Every number in it is reproducible from the fixtures in this repo.
+
 No production credentials are needed for the review. Email **william28918@outlook.com** with the workflow’s purpose, the failure you care about most, and whether you want the review or remediation option. Payment details are exchanged privately only after scope is agreed.
 
 ## Limits
