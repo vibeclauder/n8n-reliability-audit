@@ -10,6 +10,10 @@ This is intentionally a static-analysis tool, not an “AI says it looks fine”
 - active or trigger-based workflows without a central error workflow
 - enabled nodes disconnected from the execution graph
 - external integrations without an explicit retry policy
+- AI/LLM/agent nodes with no retry policy for transient provider errors (rate limits, model overload)
+- AI agent nodes with no explicit maximum-iteration cap
+- HTTP requests with no explicit timeout
+- pinned test data left in the export that overrides live execution
 - `continueOnFail` and equivalent failure paths
 - webhooks whose acknowledgement is coupled to downstream work
 - schedules with an implicit timezone

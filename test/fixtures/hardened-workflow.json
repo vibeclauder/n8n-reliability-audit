@@ -23,7 +23,10 @@
       "maxTries": 3,
       "waitBetweenTries": 1000,
       "parameters": {
-        "url": "https://example.invalid/classify"
+        "url": "https://example.invalid/classify",
+        "options": {
+          "timeout": 10000
+        }
       },
       "credentials": {
         "httpHeaderAuth": {
@@ -40,6 +43,21 @@
       "position": [400, 0],
       "retryOnFail": true,
       "parameters": {}
+    },
+    {
+      "id": "4",
+      "name": "Summarize lead with AI agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [600, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "options": {
+          "maxIterations": 8
+        }
+      }
     }
   ],
   "connections": {
@@ -48,6 +66,9 @@
     },
     "Classify sanitized lead": {
       "main": [[{"node": "Persist classified lead idempotently", "type": "main", "index": 0}]]
+    },
+    "Persist classified lead idempotently": {
+      "main": [[{"node": "Summarize lead with AI agent", "type": "main", "index": 0}]]
     }
   },
   "settings": {

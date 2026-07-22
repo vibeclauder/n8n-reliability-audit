@@ -34,6 +34,14 @@
       "parameters": {}
     },
     {
+      "id": "5",
+      "name": "Draft reply with AI agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [600, 0],
+      "parameters": {}
+    },
+    {
       "id": "4",
       "name": "Edit Fields",
       "type": "n8n-nodes-base.set",
@@ -48,7 +56,13 @@
     },
     "HTTP Request": {
       "main": [[{"node": "Google Sheets", "type": "main", "index": 0}]]
+    },
+    "Google Sheets": {
+      "main": [[{"node": "Draft reply with AI agent", "type": "main", "index": 0}]]
     }
+  },
+  "pinData": {
+    "Draft reply with AI agent": [{"json": {"reply": "captured test output"}}]
   },
   "settings": {}
 }
